@@ -13,7 +13,7 @@ public class ProductsController : Controller
         _context = context;
     }
 
-    // GET: Products/Create
+    // CREATE
     public IActionResult Create()
     {
         ViewData["CategoryId"] =
@@ -22,7 +22,6 @@ public class ProductsController : Controller
         return View();
     }
 
-    // POST: Products/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Product product)
@@ -40,10 +39,43 @@ public class ProductsController : Controller
         return View(product);
     }
 
-    // GET: Products
+    // INDEX
     public async Task<IActionResult> Index()
     {
         var products = _context.Products.Include(p => p.Category);
         return View(await products.ToListAsync());
+    }
+
+    // DETAILS
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var product = await _context.Products
+            .Include(p => p.Category)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (product == null)
+            return NotFound();
+
+        return View(product);
+    }
+
+    // EDIT
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var product = await _context.Products.FindAsync(id);
+
+        if (product == null)
+            return NotFound();
+
+        ViewData["CategoryId"] =
+            new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+
+        return View(product);
     }
 }

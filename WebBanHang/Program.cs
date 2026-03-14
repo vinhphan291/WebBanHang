@@ -18,7 +18,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();   // ⭐ BẮT BUỘC phải có dòng này
+
 app.UseRouting();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
