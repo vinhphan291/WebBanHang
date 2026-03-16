@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace WebBanHang.Models
 {
@@ -16,6 +17,9 @@ namespace WebBanHang.Models
         public decimal Price { get; set; }
 
         public string? ImageUrl { get; set; }
+
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn loại sản phẩm")]
         public int CategoryId { get; set; }
