@@ -1,0 +1,45 @@
+﻿@model WebBanHang.Models.Order
+@{
+    ViewData["Title"] = "Thông tin thanh toán";
+}
+
+<h2>Thông tin thanh toán</h2>
+
+<form asp-action="Checkout" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="CustomerName" class="form-label">Họ tên người nhận</label>
+                <input asp-for="CustomerName" class="form-control" />
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label">Số điện thoại</label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label">Địa chỉ giao hàng</label>
+                <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PaymentMethod" class="form-label">Phương thức thanh toán</label>
+                <select asp-for="PaymentMethod" class="form-select">
+                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                    <option value="BankTransfer">Chuyển khoản ngân hàng</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Đặt hàng</button>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại giỏ hàng</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

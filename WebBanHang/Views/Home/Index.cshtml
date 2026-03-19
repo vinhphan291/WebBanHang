@@ -1,8 +1,34 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<WebBanHang.Models.Product>
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Banner -->
+<div class="bg-dark text-white text-center py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Shop đồ công nghệ của Vinh</h1>
+        <p class="lead">Mua sắm trực tuyến - Ưu đãi mỗi ngày</p>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg mt-3">Xem sản phẩm</a>
+    </div>
+</div>
+
+<!-- Danh sách sản phẩm -->
+<div class="container">
+    <h3 class="mb-4">Sản phẩm nổi bật</h3>
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@product.ImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;" alt="@product.Name">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted">@product.Category?.Name</p>
+                        <p class="card-text text-danger fw-bold">@product.Price.ToString("N0") đ</p>
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary w-100">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>

@@ -6,6 +6,8 @@ namespace WebBanHang.Models
 {
     public class Product
     {
+        public int StockQuantity { get; set; } = 0;
+        
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên sản phẩm")]
