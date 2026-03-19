@@ -1,34 +1,99 @@
-﻿@model IEnumerable<WebBanHang.Models.Product>
+﻿@model IEnumerable<WebBanHang.Models.Banner>
 @{
     ViewData["Title"] = "Trang chủ";
 }
 
-<!-- Banner -->
-<div class="bg-dark text-white text-center py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<!-- SLIDER BANNER RIÊNG -->
+<div id="bannerCarousel" class="carousel slide mb-5" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
+    <!-- Indicators (dấu chấm) -->
+    <div class="carousel-indicators">
+        @{
+            int idx = 0;
+        }
+        @foreach (var banner in Model)
+        {
+            <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="@idx" class="@(idx == 0 ? "active" : "")" aria-label="Slide @idx"></button>
+            idx++;
+        }
+    </div>
+
+    <!-- Slides -->
+    <div class="carousel-inner">
+        @{
+            int j = 0;
+        }
+        @foreach (var banner in Model)
+        {
+            <div class="carousel-item @(j == 0 ? "active" : "")">
+                <a href="@banner.Link">
+                    <img src="@banner.ImageUrl" class="d-block w-100" style="height: 450px; object-fit: cover;" alt="@banner.Title">
+                </a>
+                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-3 rounded" style="bottom: 20%;">
+                    <h3 class="text-white">@banner.Title</h3>
+                    @if (!string.IsNullOrEmpty(banner.Description))
+                    {
+                        <p class="text-white">@banner.Description</p>
+                    }
+                </div>
+            </div>
+            j++;
+        }
+    </div>
+
+    <!-- Nút điều hướng -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<script>
+    // Khởi tạo carousel tự động chạy (dự phòng)
+    document.addEventListener('DOMContentLoaded', function() {
+        var carouselElement = document.getElementById('bannerCarousel');
+        if (carouselElement) {
+            var carousel = new bootstrap.Carousel(carouselElement, {
+                interval: 3000,
+                pause: false,
+                ride: 'carousel'
+            });
+        }
+    });
+</script>
+
+<!-- Banner giới thiệu shop -->
+<div class="bg-primary text-white text-center py-5 mb-4 rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
     <div class="container">
         <h1 class="display-4 fw-bold">Shop đồ công nghệ của Vinh</h1>
         <p class="lead">Mua sắm trực tuyến - Ưu đãi mỗi ngày</p>
-        <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg mt-3">Xem sản phẩm</a>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg mt-3">Xem tất cả sản phẩm</a>
     </div>
 </div>
 
-<!-- Danh sách sản phẩm -->
-<div class="container">
-    <h3 class="mb-4">Sản phẩm nổi bật</h3>
-    <div class="row">
-        @foreach (var product in Model)
-        {
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="@product.ImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;" alt="@product.Name">
-                    <div class="card-body">
-                        <h5 class="card-title">@product.Name</h5>
-                        <p class="card-text text-muted">@product.Category?.Name</p>
-                        <p class="card-text text-danger fw-bold">@product.Price.ToString("N0") đ</p>
-                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary w-100">Xem chi tiết</a>
+<!-- Danh sách sản phẩm bên dưới -->
+@if (ViewBag.Products != null)
+{
+    <div class="container">
+        <h3 class="mb-4">Sản phẩm nổi bật</h3>
+        <div class="row">
+            @foreach (var product in ViewBag.Products)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@product.ImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;" alt="@product.Name">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text text-muted">@product.Category?.Name</p>
+                            <p class="card-text text-danger fw-bold">@product.Price.ToString("N0") đ</p>
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary w-100">Xem chi tiết</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
-</div>
+}

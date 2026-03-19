@@ -5,7 +5,10 @@
 
 @{
     ViewData["Title"] = "Shop";
-    var role = HttpContextAccessor.HttpContext.Session.GetString("Role");
+    var username = HttpContextAccessor.HttpContext?.Session.GetString("Username");
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("Role");
+    var isLoggedIn = !string.IsNullOrEmpty(username);
+    var searchString = ViewBag.SearchString as string;
 }
 
 @if (TempData["Message"] != null)
@@ -14,6 +17,14 @@
         @TempData["Message"]
     </div>
 }
+
+<!-- Form tìm kiếm -->
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="searchString" class="form-control" placeholder="Nhập tên sản phẩm..." value="@searchString" />
+        <button class="btn btn-outline-primary" type="submit">Tìm kiếm</button>
+    </div>
+</form>
 
 <style>
     .product-card {
@@ -52,7 +63,7 @@
 
 <h2 class="mb-4">🛒 Shop Products</h2>
 
-<!-- NÚT CREATE (CHỈ ADMIN THẤY) -->
+<!-- Nút Create cho admin -->
 @if (role == "Admin")
 {
     <a asp-action="Create" class="btn btn-success mb-3">
@@ -61,64 +72,54 @@
 }
 
 <div class="row">
-
     @foreach (var item in Model)
     {
         <div class="col-md-3 mb-4">
-
             <div class="product-card shadow-sm">
-
                 <img src="@item.ImageUrl" class="w-100 product-img" />
-
                 <div class="p-3">
-
                     <h6>@item.Name</h6>
-
                     <div class="price">
                         @item.Price.ToString("N0") đ
                     </div>
-
                     <div class="category mb-2">
                         @item.Category?.Name
                     </div>
 
-                    <!-- ADD TO CART -->
-                    <form asp-controller="Cart"
-                          asp-action="AddToCart"
-                          method="post">
+                    <!-- Xử lý nút mua hàng -->
+                    @if (isLoggedIn)
+                    {
+                        if (role == "Admin")
+                        {
+                            <button class="btn btn-secondary btn-cart" disabled>Admin không thể mua</button>
+                        }
+                        else
+                        {
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                <input type="hidden" name="productId" value="@item.Id" />
+                                <button type="submit" class="btn btn-success btn-cart">
+                                    🛒 Thêm vào giỏ
+                                </button>
+                            </form>
+                        }
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-warning btn-cart">
+                            🔑 Đăng nhập để mua
+                        </a>
+                    }
 
-                        <input type="hidden" name="productId" value="@item.Id" />
-
-                        <button type="submit" class="btn btn-success btn-cart">
-                            🛒 Add to Cart
-                        </button>
-                    </form>
-
-                    <!-- ADMIN BUTTON -->
+                    <!-- Nút Edit/Delete cho admin -->
                     @if (role == "Admin")
                     {
                         <div class="mt-2 text-center">
-
-                            <a asp-action="Edit"
-                                   asp-route-id="@item.Id"
-                                   class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
-
-                            <a asp-action="Delete"
-                                   asp-route-id="@item.Id"
-                                   class="btn btn-danger btn-sm">
-                                Delete
-                            </a>
-
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
                         </div>
                     }
-
                 </div>
-
             </div>
-
         </div>
     }
-
 </div>

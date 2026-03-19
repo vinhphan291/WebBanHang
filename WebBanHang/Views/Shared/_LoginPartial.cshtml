@@ -13,6 +13,18 @@
                 Xin chào, @username (@role)
             </span>
         </li>
+        @if (role == "Admin")
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Order" asp-action="AdminIndex">Quản lý đơn hàng</a>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Order" asp-action="Index">Đơn hàng của tôi</a>
+            </li>
+        }
         <li class="nav-item">
             <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
         </li>

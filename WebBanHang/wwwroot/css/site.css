@@ -37,3 +37,17 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
 }
+.carousel-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 9/16 = 56.25% */
+}
+
+.carousel-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

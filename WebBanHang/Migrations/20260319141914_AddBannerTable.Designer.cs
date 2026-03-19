@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebBanHang.Data;
 
@@ -11,9 +12,11 @@ using WebBanHang.Data;
 namespace WebBanHang.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319141914_AddBannerTable")]
+    partial class AddBannerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,73 +24,6 @@ namespace WebBanHang.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("WebBanHang.Models.Banner", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Link")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Banners");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Giảm ngay 2 triệu",
-                            ImageUrl = "/images/banner1.jpg",
-                            IsActive = true,
-                            Link = "/Products/Index",
-                            SortOrder = 1,
-                            Title = "iPhone 14 giảm giá sốc"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Ưu đãi lớn - Trả góp 0%",
-                            ImageUrl = "/images/banner2.jpg",
-                            IsActive = true,
-                            Link = "/Products/Index",
-                            SortOrder = 2,
-                            Title = "Laptop Dell XPS"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Tai nghe, sạc dự phòng giảm đến 30%",
-                            ImageUrl = "/images/banner3.jpg",
-                            IsActive = true,
-                            Link = "/Products/Index",
-                            SortOrder = 3,
-                            Title = "Phụ kiện chính hãng"
-                        });
-                });
 
             modelBuilder.Entity("WebBanHang.Models.Category", b =>
                 {
@@ -140,9 +76,6 @@ namespace WebBanHang.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Orders");
@@ -187,9 +120,6 @@ namespace WebBanHang.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");

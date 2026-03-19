@@ -36,21 +36,22 @@ namespace WebBanHang.Controllers
             session.SetString(CartSessionKey, jsonCart);
         }
 
-        // Kiểm tra đăng nhập
-        private bool IsLoggedIn()
+        // Kiểm tra có thể mua hàng không (đã đăng nhập và không phải admin)
+        private bool CanBuy()
         {
-            return !string.IsNullOrEmpty(HttpContext.Session.GetString("Username"));
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+            return !string.IsNullOrEmpty(username) && role != "Admin";
         }
 
         // Thêm sản phẩm vào giỏ
         [HttpPost]
         public IActionResult AddToCart(int productId)
         {
-            // Kiểm tra đăng nhập
-            if (!IsLoggedIn())
+            if (!CanBuy())
             {
-                TempData["Message"] = "Vui lòng đăng nhập để mua hàng.";
-                return RedirectToAction("Login", "Account");
+                TempData["Message"] = "Admin không thể mua hàng.";
+                return RedirectToAction("Index", "Products");
             }
 
             var product = _context.Products.Find(productId);
@@ -126,9 +127,9 @@ namespace WebBanHang.Controllers
         // Thanh toán (GET)
         public IActionResult Checkout()
         {
-            if (!IsLoggedIn())
+            if (!CanBuy())
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Products");
             }
 
             var cart = GetCart();
@@ -144,9 +145,9 @@ namespace WebBanHang.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(Order model)
         {
-            if (!IsLoggedIn())
+            if (!CanBuy())
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Products");
             }
 
             var cart = GetCart();
@@ -157,6 +158,10 @@ namespace WebBanHang.Controllers
 
             if (ModelState.IsValid)
             {
+                // Lấy tên đăng nhập
+                var username = HttpContext.Session.GetString("Username");
+                model.UserName = username;
+
                 // Tính tổng tiền
                 model.TotalAmount = cart.Sum(x => x.Price * x.Quantity);
                 model.OrderDate = DateTime.Now;

@@ -1,0 +1,120 @@
+﻿@model WebBanHang.Models.Order
+@{
+    ViewData["Title"] = $"Chi tiết đơn hàng #{Model.Id} (Admin)";
+    var role = Context.Session.GetString("Role");
+}
+
+@if (role != "Admin")
+{
+    <p>Bạn không có quyền truy cập.</p>
+    return;
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<h2>Chi tiết đơn hàng #@Model.Id (Admin)</h2>
+
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">Thông tin chung</div>
+    <div class="card-body">
+        <p><strong>Người đặt:</strong> @Model.CustomerName (@Model.UserName)</p>
+        <p><strong>Số điện thoại:</strong> @Model.Phone</p>
+        <p><strong>Địa chỉ:</strong> @Model.Address</p>
+        <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+        <p><strong>Phương thức thanh toán:</strong> @(Model.PaymentMethod == "COD" ? "COD" : "Chuyển khoản")</p>
+        <p>
+            <strong>Trạng thái hiện tại:</strong>
+            @switch (Model.OrderStatus)
+            {
+                case "Pending":
+                    <span class="badge bg-warning">Chờ xác nhận</span>
+                    ; break;
+                case "Confirmed":
+
+                    <span class="badge bg-info">Đã xác nhận</span>
+                    ; break;
+                case "Shipped":
+
+                    <span class="badge bg-primary">Đang giao</span>
+                    ; break;
+                case "Delivered":
+
+                    <span class="badge bg-success">Đã giao</span>
+                    ; break;
+                case "Cancelled":
+
+                    <span class="badge bg-danger">Đã hủy</span>
+                    ; break;
+                default:
+
+                    <span class="badge bg-secondary">@Model.OrderStatus</span>
+                    ; break;
+            }
+        </p>
+        <p><strong>Tổng tiền:</strong> <span class="text-danger fw-bold">@Model.TotalAmount.ToString("N0") đ</span></p>
+    </div>
+</div>
+
+<h4>Sản phẩm đã mua</h4>
+<table class="table table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.OrderDetails)
+        {
+            <tr>
+                <td>@detail.Product?.Name</td>
+                <td>@detail.UnitPrice.ToString("N0") đ</td>
+                <td>@detail.Quantity</td>
+                <td>@((detail.UnitPrice * detail.Quantity).ToString("N0")) đ</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Form cập nhật trạng thái -->
+<div class="card mt-3">
+    <div class="card-header">Cập nhật trạng thái</div>
+    <div class="card-body">
+        <form asp-action="UpdateStatus" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <div class="row">
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="Pending" selected="@(Model.OrderStatus == "Pending")">Chờ xác nhận</option>
+                        <option value="Confirmed" selected="@(Model.OrderStatus == "Confirmed")">Đã xác nhận</option>
+                        <option value="Shipped" selected="@(Model.OrderStatus == "Shipped")">Đang giao</option>
+                        <option value="Delivered" selected="@(Model.OrderStatus == "Delivered")">Đã giao</option>
+                        <option value="Cancelled" selected="@(Model.OrderStatus == "Cancelled")">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="AdminIndex" class="btn btn-secondary">Quay lại danh sách</a>
+</div>
+<!-- Form hủy đơn hàng (admin) -->
+<div class="card mt-3 border-danger">
+    <div class="card-header bg-danger text-white">Hủy đơn hàng</div>
+    <div class="card-body">
+        <form asp-action="AdminCancel" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?');">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+        </form>
+    </div>
+</div>  
