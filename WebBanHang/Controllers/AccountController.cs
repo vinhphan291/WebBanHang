@@ -28,7 +28,6 @@ namespace WebBanHang.Controllers
                 return View();
             }
 
-            // Tìm user trong database (so sánh plain text, trong thực tế nên hash password)
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == username && u.Password == password);
 
@@ -38,11 +37,47 @@ namespace WebBanHang.Controllers
                 return View();
             }
 
-            // Lưu thông tin vào session
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("Role", user.Role);
 
             return RedirectToAction("Index", "Products");
+        }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == model.Username);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại.");
+                    return View(model);
+                }
+
+                var user = new User
+                {
+                    Username = model.Username,
+                    Password = model.Password,
+                    Role = "User"
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("Role", user.Role);
+
+                return RedirectToAction("Index", "Products");
+            }
+            return View(model);
         }
 
         public IActionResult Logout()
@@ -55,49 +90,5 @@ namespace WebBanHang.Controllers
         {
             return View();
         }
-
-
-        // GET: /Account/Register
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: /Account/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Kiểm tra username đã tồn tại chưa
-                var existingUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Username == model.Username);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại.");
-                    return View(model);
-                }
-
-                // Tạo user mới với role "User"
-                var user = new User
-                {
-                    Username = model.Username,
-                    Password = model.Password, // Trong thực tế nên hash password
-                    Role = "User"
-                };
-
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-
-                // Tự động đăng nhập sau khi đăng ký
-                HttpContext.Session.SetString("Username", user.Username);
-                HttpContext.Session.SetString("Role", user.Role);
-
-                return RedirectToAction("Index", "Products");
-            }
-            return View(model);
-        }
     }
-
 }

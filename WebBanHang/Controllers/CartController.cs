@@ -16,19 +16,14 @@ namespace WebBanHang.Controllers
             _context = context;
         }
 
-        // Lấy giỏ hàng từ Session
         private List<CartItem> GetCart()
         {
             var session = HttpContext.Session;
             string jsonCart = session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(jsonCart))
-            {
-                return new List<CartItem>();
-            }
+            if (string.IsNullOrEmpty(jsonCart)) return new List<CartItem>();
             return JsonSerializer.Deserialize<List<CartItem>>(jsonCart);
         }
 
-        // Lưu giỏ hàng vào Session
         private void SaveCart(List<CartItem> cart)
         {
             var session = HttpContext.Session;
@@ -36,7 +31,6 @@ namespace WebBanHang.Controllers
             session.SetString(CartSessionKey, jsonCart);
         }
 
-        // Kiểm tra có thể mua hàng không (đã đăng nhập và không phải admin)
         private bool CanBuy()
         {
             var username = HttpContext.Session.GetString("Username");
@@ -44,7 +38,6 @@ namespace WebBanHang.Controllers
             return !string.IsNullOrEmpty(username) && role != "Admin";
         }
 
-        // Thêm sản phẩm vào giỏ
         [HttpPost]
         public IActionResult AddToCart(int productId)
         {
@@ -55,17 +48,11 @@ namespace WebBanHang.Controllers
             }
 
             var product = _context.Products.Find(productId);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            if (product == null) return NotFound();
 
             var cart = GetCart();
             var existingItem = cart.FirstOrDefault(x => x.ProductId == productId);
-            if (existingItem != null)
-            {
-                existingItem.Quantity++;
-            }
+            if (existingItem != null) existingItem.Quantity++;
             else
             {
                 cart.Add(new CartItem
@@ -83,14 +70,12 @@ namespace WebBanHang.Controllers
             return RedirectToAction("Index", "Products");
         }
 
-        // Hiển thị giỏ hàng
         public IActionResult Index()
         {
             var cart = GetCart();
             return View(cart);
         }
 
-        // Cập nhật số lượng
         [HttpPost]
         public IActionResult UpdateCart(int productId, int quantity)
         {
@@ -98,71 +83,43 @@ namespace WebBanHang.Controllers
             var item = cart.FirstOrDefault(x => x.ProductId == productId);
             if (item != null)
             {
-                if (quantity > 0)
-                {
-                    item.Quantity = quantity;
-                }
-                else
-                {
-                    cart.Remove(item);
-                }
+                if (quantity > 0) item.Quantity = quantity;
+                else cart.Remove(item);
             }
             SaveCart(cart);
             return RedirectToAction("Index");
         }
 
-        // Xóa sản phẩm khỏi giỏ
         public IActionResult RemoveFromCart(int productId)
         {
             var cart = GetCart();
             var item = cart.FirstOrDefault(x => x.ProductId == productId);
-            if (item != null)
-            {
-                cart.Remove(item);
-            }
+            if (item != null) cart.Remove(item);
             SaveCart(cart);
             return RedirectToAction("Index");
         }
 
-        // Thanh toán (GET)
         public IActionResult Checkout()
         {
-            if (!CanBuy())
-            {
-                return RedirectToAction("Index", "Products");
-            }
-
+            if (!CanBuy()) return RedirectToAction("Index", "Products");
             var cart = GetCart();
-            if (!cart.Any())
-            {
-                return RedirectToAction("Index");
-            }
+            if (!cart.Any()) return RedirectToAction("Index");
             return View(new Order());
         }
 
-        // Thanh toán (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(Order model)
         {
-            if (!CanBuy())
-            {
-                return RedirectToAction("Index", "Products");
-            }
+            if (!CanBuy()) return RedirectToAction("Index", "Products");
 
             var cart = GetCart();
-            if (!cart.Any())
-            {
-                return RedirectToAction("Index");
-            }
+            if (!cart.Any()) return RedirectToAction("Index");
 
             if (ModelState.IsValid)
             {
-                // Lấy tên đăng nhập
                 var username = HttpContext.Session.GetString("Username");
                 model.UserName = username;
-
-                // Tính tổng tiền
                 model.TotalAmount = cart.Sum(x => x.Price * x.Quantity);
                 model.OrderDate = DateTime.Now;
                 model.OrderStatus = "Pending";
@@ -170,7 +127,6 @@ namespace WebBanHang.Controllers
                 _context.Orders.Add(model);
                 await _context.SaveChangesAsync();
 
-                // Lưu chi tiết đơn hàng
                 foreach (var item in cart)
                 {
                     var orderDetail = new OrderDetail
@@ -182,34 +138,25 @@ namespace WebBanHang.Controllers
                     };
                     _context.OrderDetails.Add(orderDetail);
 
-                    // Giảm số lượng tồn kho (nếu có)
                     var product = await _context.Products.FindAsync(item.ProductId);
                     if (product != null && product.StockQuantity >= item.Quantity)
-                    {
                         product.StockQuantity -= item.Quantity;
-                    }
                 }
                 await _context.SaveChangesAsync();
 
-                // Xóa giỏ hàng
                 SaveCart(new List<CartItem>());
-
                 return RedirectToAction("OrderConfirmation", new { id = model.Id });
             }
             return View(model);
         }
 
-        // Xác nhận đơn hàng
-        public IActionResult OrderConfirmation(int id)
+        public async Task<IActionResult> OrderConfirmation(int id)
         {
-            var order = _context.Orders
+            var order = await _context.Orders
                 .Include(o => o.OrderDetails)
                 .ThenInclude(od => od.Product)
-                .FirstOrDefault(o => o.Id == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return NotFound();
             return View(order);
         }
     }

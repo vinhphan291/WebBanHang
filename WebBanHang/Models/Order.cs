@@ -26,10 +26,8 @@ namespace WebBanHang.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; }
 
-        // Thêm UserName để lưu tên đăng nhập của người đặt hàng
         public string? UserName { get; set; }
 
-        // Navigation property
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

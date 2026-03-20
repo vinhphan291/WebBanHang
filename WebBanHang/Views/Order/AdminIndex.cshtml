@@ -10,24 +10,15 @@
     return;
 }
 
-<h2>Quản lý đơn hàng (Admin)</h2>
+<h2>Quản lý đơn hàng</h2>
 
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
+<div class="mb-3">
+    <a asp-action="ExportToExcel" class="btn btn-success">Xuất Excel</a>
+    <a asp-action="ExportToPdf" class="btn btn-danger">Xuất PDF</a>
+</div>
 
 <table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Mã đơn</th>
-            <th>Người đặt</th>
-            <th>Ngày đặt</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th></th>
-        </tr>
-    </thead>
+    <thead><tr><th>Mã đơn</th><th>Người đặt</th><th>Ngày đặt</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
     <tbody>
         @foreach (var order in Model)
         {
@@ -64,9 +55,7 @@
                             ; break;
                     }
                 </td>
-                <td>
-                    <a asp-action="AdminDetails" asp-route-id="@order.Id" class="btn btn-sm btn-info">Chi tiết</a>
-                </td>
+                <td><a asp-action="AdminDetails" asp-route-id="@order.Id" class="btn btn-sm btn-info">Chi tiết</a></td>
             </tr>
         }
     </tbody>

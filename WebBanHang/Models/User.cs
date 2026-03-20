@@ -16,4 +16,4 @@ namespace WebBanHang.Models
         [Required]
         public string Role { get; set; }
     }
-}   
+}

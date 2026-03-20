@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 using WebBanHang.Data;
+using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,7 @@ builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
-
+RotativaConfiguration.Setup(app.Environment.WebRootPath, "wkhtmltopdf");
 // Middleware
 if (!app.Environment.IsDevelopment())
 {

@@ -5,14 +5,10 @@
 
 <h2>Đơn hàng của tôi</h2>
 
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+<div class="mb-3">
+    <a asp-action="ExportToExcel" class="btn btn-success">Xuất Excel</a>
+    <a asp-action="ExportToPdf" class="btn btn-danger">Xuất PDF</a>
+</div>
 
 @if (!Model.Any())
 {
@@ -21,16 +17,7 @@
 else
 {
     <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Ngày đặt</th>
-                <th>Người nhận</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th></th>
-            </tr>
-        </thead>
+        <thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Người nhận</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
         <tbody>
             @foreach (var order in Model)
             {
@@ -68,7 +55,14 @@ else
                         }
                     </td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-info">Xem</a>
+                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-info">Chi tiết</a>
+                        @if (order.OrderStatus == "Pending")
+                        {
+                            <form asp-action="Cancel" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@order.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hủy đơn hàng này?');">Hủy</button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }
